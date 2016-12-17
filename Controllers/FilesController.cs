@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using FileReaderAPI.Models;
 
 namespace FileReaderAPI.Controllers
 {
@@ -32,23 +33,36 @@ namespace FileReaderAPI.Controllers
 
         // POST api/files
         [HttpPost]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> UploadFiles()
         {
+            // Get the files from the request form. 
             var files = Request.Form.Files;
 
+            // Specify path where to save file. 
             var uploads = Path.Combine(_environment.WebRootPath, "uploads");
+
+            var fileResults = new List<TextFile>();
 
             foreach (var file in files)
             {
                 if (file.Length > 0)
                 {
-                    using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))
+                    // Save file to uploads folder
+                    using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))                    
                     {
                         await file.CopyToAsync(fileStream);
-                    }
+                    }               
+                     
+                    // Add file to list of files 
+                    fileResults.Add(new TextFile { 
+                        Name = file.FileName,
+                        Type = file.ContentType,
+                        Length = file.Length,
+                    });
                 }
-            }
-            return Ok();
+            }            
+
+            return Json(fileResults);
         }
 
         // PUT api/files/5
