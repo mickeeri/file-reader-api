@@ -38,6 +38,7 @@ namespace FileReaderAPI
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseCors("AllowAll");
             app.UseMvc();
         }
     }
