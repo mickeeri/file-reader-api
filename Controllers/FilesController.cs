@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using FileReaderAPI.Models;
+using System.Linq;
 
 namespace FileReaderAPI.Controllers
 {
@@ -19,17 +20,27 @@ namespace FileReaderAPI.Controllers
 
         // GET api/files
         [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "file1", "file2" };
+        public IEnumerable<TextFile> Get()
+        {           
+            var textFiles = new List<TextFile>();
+
+            // Get all the files from the uploads folder. 
+            var fileNames = Directory.GetFiles(_environment.WebRootPath + "/uploads").Select(Path.GetFileName);
+
+            foreach (var name in fileNames)
+            {
+                textFiles.Add(new TextFile { Name = name });
+            }
+                                
+            return textFiles;
         }
 
         // GET api/files/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+        // [HttpGet("{id}")]
+        // public string Get(int id)
+        // {
+        //     return "value";
+        // }
 
         // POST api/files
         [HttpPost]
