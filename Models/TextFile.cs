@@ -6,5 +6,6 @@ namespace FileReaderAPI.Models
     public string Name { get; set; }
     public long Length { get; set; }
     public string Type { get; set; }
+    public string Content { get; set; }
   }
 }

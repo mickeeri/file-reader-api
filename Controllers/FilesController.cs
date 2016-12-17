@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using FileReaderAPI.Models;
 using System.Linq;
+using System.Text;
 
 namespace FileReaderAPI.Controllers
 {
@@ -36,11 +37,30 @@ namespace FileReaderAPI.Controllers
         }
 
         // GET api/files/5
-        // [HttpGet("{id}")]
-        // public string Get(int id)
-        // {
-        //     return "value";
-        // }
+        [HttpGet("{name}")]
+        public async Task<IActionResult> Get(string name)
+        {
+            try
+            {
+                string filePath = Path.Combine(_environment.WebRootPath, "uploads", name);       
+
+                string source = "";
+
+                using (StreamReader reader = System.IO.File.OpenText(filePath))                    
+                {
+                    source = await reader.ReadToEndAsync();
+
+                    var textFile = new TextFile { Name = name, Content = source };
+
+                    return Json(textFile);  
+                }
+                               
+            }            
+            catch (FileNotFoundException)
+            {
+                return NotFound();
+            }            
+        }
 
         // POST api/files
         [HttpPost]
