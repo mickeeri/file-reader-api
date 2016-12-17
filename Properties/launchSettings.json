@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "file_reader_api": {
+    "FileReaderAPI": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "http://localhost:5000/api/values",

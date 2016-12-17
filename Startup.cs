@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace file_reader_api
+namespace FileReaderAPI
 {
     public class Startup
     {
@@ -23,6 +23,11 @@ namespace file_reader_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configure cors
+            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
+                                                                            .AllowAnyMethod()
+                                                                            .AllowAnyHeader()));   
+
             // Add framework services.
             services.AddMvc();
         }

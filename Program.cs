@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 
-namespace file_reader_api
+namespace FileReaderAPI
 {
     public class Program
     {
