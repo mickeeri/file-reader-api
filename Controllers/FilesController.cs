@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using FileReaderAPI.Models;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System;
 
 namespace FileReaderAPI.Controllers
 {
@@ -50,9 +52,20 @@ namespace FileReaderAPI.Controllers
                 {
                     source = await reader.ReadToEndAsync();
 
-                    var textFile = new TextFile { Name = name, Content = source };
+                    char[] delimiters = { ' ', '.', ',', ';', '\'', '-', ':', '!', '?', '(', ')', '<', '>', '=', '*', '/', '[', ']', '{', '}', '\\', '"', '\r', '\n' };                    
+                
+                    var results = source.Split(delimiters, StringSplitOptions.RemoveEmptyEntries).Where(x => x.Length > 3)
+                                                .GroupBy(x => x)
+                                                .Select(x => new { Count = x.Count(), Word = x.Key })
+                                                .OrderByDescending(x => x.Count);
 
-                    return Json(textFile);  
+                    var mostCommonWord = results.First().Word;
+
+                    string newContent = source.Replace(mostCommonWord, "foo" + mostCommonWord + "bar");
+
+                    var result = new Result { FileName = name, ProcessedContent = newContent, MostCommonWord = mostCommonWord };
+
+                    return Json(result);  
                 }
                                
             }            
