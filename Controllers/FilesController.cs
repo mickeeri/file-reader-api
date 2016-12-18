@@ -37,28 +37,24 @@ namespace FileReaderAPI.Controllers
         }
 
         // GET api/files/5
-        [HttpGet("{name}")]
-        public async Task<IActionResult> Get(string name)
+        [HttpGet("{fileName}")]
+        public async Task<IActionResult> ReadFile(string fileName)
         {
             try
             {
-                string filePath = Path.Combine(_environment.WebRootPath, "uploads", name);       
+                string filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);       
 
                 using (StreamReader reader = System.IO.File.OpenText(filePath))                    
                 {
                     string source = await reader.ReadToEndAsync();
                 
-                    return Json(TextProcesser.ReplaceMostCommonWords(name, source));  
+                    return Json(TextProcesser.ReplaceMostCommonWords(fileName, source));  
                 }                               
             }            
             catch (FileNotFoundException)
             {
                 return NotFound();
             }    
-            catch (Exception)
-            {
-                return new StatusCodeResult(500);
-            }
         }
 
         // POST api/files
@@ -105,10 +101,12 @@ namespace FileReaderAPI.Controllers
             return Json(fileResults);
         }
 
-        // DELETE api/files/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // DELETE api/files/filename.txt
+        [HttpDelete("{fileName}")]
+        public void Delete(string fileName)
         {
+            string filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);   
+            System.IO.File.Delete(filePath);                
         }
     }
 }
