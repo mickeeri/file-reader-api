@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System;
+using System.Net;
 
 namespace FileReaderAPI.Controllers
 {
@@ -54,16 +55,31 @@ namespace FileReaderAPI.Controllers
 
                     char[] delimiters = { ' ', '.', ',', ';', '\'', '-', ':', '!', '?', '(', ')', '<', '>', '=', '*', '/', '[', ']', '{', '}', '\\', '"', '\r', '\n' };                    
                 
+                    // Split text and create new object ordered by highest word count. 
                     var results = source.Split(delimiters, StringSplitOptions.RemoveEmptyEntries).Where(x => x.Length > 3)
                                                 .GroupBy(x => x)
                                                 .Select(x => new { Count = x.Count(), Word = x.Key })
                                                 .OrderByDescending(x => x.Count);
 
-                    var mostCommonWord = results.First().Word;
+                    // Extract the word count of the first object. 
+                    int highestWordCount = results.First().Count;
+                    
+                    // Select the elements with that word count. 
+                    var elementsWithHighestWordCount = results.Where(x => x.Count == highestWordCount);
 
-                    string newContent = source.Replace(mostCommonWord, "foo" + mostCommonWord + "bar");
+                    string processedContent = source;
+                    List<string> mostCommonWords = new List<string>();
 
-                    var result = new Result { FileName = name, ProcessedContent = newContent, MostCommonWord = mostCommonWord };
+                    foreach (var element in elementsWithHighestWordCount)
+                    {
+                        // Surround the common word with foo and bar. 
+                        processedContent = processedContent.Replace(element.Word, "foo" + element.Word + "bar");
+
+                        // Add the word to list of most common word. 
+                        mostCommonWords.Add(element.Word);
+                    }
+
+                    Result result = new Result { FileName = name, ProcessedContent = processedContent, MostCommonWords = mostCommonWords };
 
                     return Json(result);  
                 }
@@ -72,7 +88,11 @@ namespace FileReaderAPI.Controllers
             catch (FileNotFoundException)
             {
                 return NotFound();
-            }            
+            }    
+            catch (Exception)
+            {
+                return new StatusCodeResult(500);
+            }
         }
 
         // POST api/files
