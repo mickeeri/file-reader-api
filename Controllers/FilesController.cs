@@ -5,10 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using FileReaderAPI.Models;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System;
-using System.Net;
 
 namespace FileReaderAPI.Controllers
 {
@@ -47,43 +44,12 @@ namespace FileReaderAPI.Controllers
             {
                 string filePath = Path.Combine(_environment.WebRootPath, "uploads", name);       
 
-                string source = "";
-
                 using (StreamReader reader = System.IO.File.OpenText(filePath))                    
                 {
-                    source = await reader.ReadToEndAsync();
-
-                    char[] delimiters = { ' ', '.', ',', ';', '\'', '-', ':', '!', '?', '(', ')', '<', '>', '=', '*', '/', '[', ']', '{', '}', '\\', '"', '\r', '\n' };                    
+                    string source = await reader.ReadToEndAsync();
                 
-                    // Split text and create new object ordered by highest word count. 
-                    var results = source.Split(delimiters, StringSplitOptions.RemoveEmptyEntries).Where(x => x.Length > 3)
-                                                .GroupBy(x => x)
-                                                .Select(x => new { Count = x.Count(), Word = x.Key })
-                                                .OrderByDescending(x => x.Count);
-
-                    // Extract the word count of the first object. 
-                    int highestWordCount = results.First().Count;
-                    
-                    // Select the elements with that word count. 
-                    var elementsWithHighestWordCount = results.Where(x => x.Count == highestWordCount);
-
-                    string processedContent = source;
-                    List<string> mostCommonWords = new List<string>();
-
-                    foreach (var element in elementsWithHighestWordCount)
-                    {
-                        // Surround the common word with foo and bar. 
-                        processedContent = processedContent.Replace(element.Word, "foo" + element.Word + "bar");
-
-                        // Add the word to list of most common word. 
-                        mostCommonWords.Add(element.Word);
-                    }
-
-                    Result result = new Result { FileName = name, ProcessedContent = processedContent, MostCommonWords = mostCommonWords };
-
-                    return Json(result);  
-                }
-                               
+                    return Json(TextProcesser.ReplaceMostCommonWords(name, source));  
+                }                               
             }            
             catch (FileNotFoundException)
             {
@@ -99,8 +65,18 @@ namespace FileReaderAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFiles()
         {
-            // Get the files from the request form. 
+            // Get the files from the request as form object. 
             var files = Request.Form.Files;
+
+            string[] allowedFileTypes = { "text/markdown", "application/rtf", "text/plain" };
+
+            foreach (var file in files)
+            {
+                if (Array.IndexOf(allowedFileTypes, file.ContentType) == -1)
+                {
+                    return BadRequest();
+                }
+            }
 
             // Specify path where to save file. 
             var uploads = Path.Combine(_environment.WebRootPath, "uploads");
@@ -127,12 +103,6 @@ namespace FileReaderAPI.Controllers
             }            
 
             return Json(fileResults);
-        }
-
-        // PUT api/files/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
         }
 
         // DELETE api/files/5
