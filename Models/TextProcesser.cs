@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FileReaderAPI.Models 
 {
@@ -28,8 +29,11 @@ namespace FileReaderAPI.Models
 
         foreach (var element in elementsWithHighestWordCount)
         {
-            // Surround the common word with foo and bar. 
-            processedContent = processedContent.Replace(element.Word, "foo" + element.Word + "bar");
+            // Using Regex to only match whole words. 
+            string  pattern = String.Format(@"\b{0}\b", element.Word);
+
+            // Surround the common word with foo and bar.             
+            processedContent = Regex.Replace(processedContent, pattern, String.Format("foo{0}bar", element.Word));
 
             // Add the word to list of most common word. 
             mostCommonWords.Add(element.Word);
