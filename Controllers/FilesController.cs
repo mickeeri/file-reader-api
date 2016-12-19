@@ -26,7 +26,7 @@ namespace FileReaderAPI.Controllers
             var textFiles = new List<TextFile>();
 
             // Get all the files from the uploads folder. 
-            var fileNames = Directory.GetFiles(_environment.WebRootPath + "/uploads").Select(Path.GetFileName);
+            var fileNames = Directory.GetFiles(Path.Combine(_environment.WebRootPath, "uploads")).Select(Path.GetFileName);
 
             foreach (var name in fileNames)
             {
@@ -103,10 +103,19 @@ namespace FileReaderAPI.Controllers
 
         // DELETE api/files/filename.txt
         [HttpDelete("{fileName}")]
-        public void Delete(string fileName)
+        public IActionResult Delete(string fileName)
         {
-            string filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);   
-            System.IO.File.Delete(filePath);                
+            try
+            {
+                string filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);   
+                System.IO.File.Delete(filePath);  
+                return NoContent();   
+            }
+            catch (FileNotFoundException)
+            {                
+                return NotFound();
+            }
+           
         }
     }
 }
