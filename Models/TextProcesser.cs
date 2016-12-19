@@ -10,7 +10,7 @@ namespace FileReaderAPI.Models
   {
     public static Result ReplaceMostCommonWords(string fileName, string source) 
     {
-        char[] delimiters = { ' ', '.', ',', ';', '\'', '-', ':', '!', '?', '(', ')', '<', '>', '=', '*', '/', '[', ']', '{', '}', '\\', '"', '\r', '\n' };                            
+        char[] delimiters = { ' ', '.', ',', ';', '\'', ':', '!', '?', '(', ')', '<', '>', '=', '*', '/', '[', ']', '{', '}', '\\', '"', '\r', '\n' };                            
 
         // Split text and create new object ordered by highest word count. 
         var results = source.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
