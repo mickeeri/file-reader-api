@@ -25,6 +25,11 @@ namespace FileReaderAPI.Controllers
         {           
             var textFiles = new List<TextFile>();
 
+            string uploadFolder = Path.Combine(_environment.WebRootPath, "uploads");
+
+            // Create directory if it doesn't exists. 
+            System.IO.Directory.CreateDirectory(uploadFolder);            
+
             // Get all the files from the uploads folder. 
             var fileNames = Directory.GetFiles(Path.Combine(_environment.WebRootPath, "uploads")).Select(Path.GetFileName);
 
@@ -68,6 +73,7 @@ namespace FileReaderAPI.Controllers
 
             foreach (var file in files)
             {
+                // Return bad request if one of the files does not have allowed MIME-type. 
                 if (Array.IndexOf(allowedFileTypes, file.ContentType) == -1)
                 {
                     return BadRequest();
@@ -77,7 +83,7 @@ namespace FileReaderAPI.Controllers
             // Specify path where to save file. 
             var uploads = Path.Combine(_environment.WebRootPath, "uploads");
 
-            var fileResults = new List<TextFile>();
+            var uploadedFiles = new List<TextFile>();
 
             foreach (var file in files)
             {
@@ -89,16 +95,12 @@ namespace FileReaderAPI.Controllers
                         await file.CopyToAsync(fileStream);
                     }               
                      
-                    // Add file to list of files 
-                    fileResults.Add(new TextFile { 
-                        Name = file.FileName,
-                        Type = file.ContentType,
-                        Length = file.Length,
-                    });
+                    // Add the uploaded file to list of uploaded files. 
+                    uploadedFiles.Add(new TextFile { Name = file.FileName });
                 }
             }            
 
-            return Json(fileResults);
+            return Json(uploadedFiles);
         }
 
         // DELETE api/files/filename.txt

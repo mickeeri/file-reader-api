@@ -13,7 +13,8 @@ namespace FileReaderAPI.Models
         char[] delimiters = { ' ', '.', ',', ';', '\'', '-', ':', '!', '?', '(', ')', '<', '>', '=', '*', '/', '[', ']', '{', '}', '\\', '"', '\r', '\n' };                            
 
         // Split text and create new object ordered by highest word count. 
-        var results = source.Split(delimiters, StringSplitOptions.RemoveEmptyEntries).Where(x => x.Length > 3)
+        var results = source.Split(delimiters, StringSplitOptions.RemoveEmptyEntries)
+                                    .Where(x => x.Length > 3)
                                     .GroupBy(x => x)
                                     .Select(x => new { Count = x.Count(), Word = x.Key })
                                     .OrderByDescending(x => x.Count);
